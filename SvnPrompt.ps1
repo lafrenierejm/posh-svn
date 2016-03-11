@@ -75,8 +75,10 @@ function Global:Write-VcsStatus {
     }
 }
 
-# Add scriptblock that will execute for Write-VcsStatus
-$Global:VcsPromptStatuses += {
-    $Global:SvnStatus = Get-SvnStatus
-    Write-SvnStatus $SvnStatus
+# Scriptblock that will execute for write-vcsstatus
+$PoshSvnVcsPrompt = {
+	$Global:SvnStatus = Get-SvnStatus
+	Write-SvnStatus $SvnStatus
 }
+$Global:VcsPromptStatuses += $PoshSvnVcsPrompt
+$ExecutionContext.SessionState.Module.OnRemove = { $Global:VcsPromptStatuses = $Global:VcsPromptStatuses | ? { $_ -ne $PoshSvnVcsPrompt } }
