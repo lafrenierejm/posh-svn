@@ -73,32 +73,11 @@ if(!(Test-Path Variable:Global:VcsPromptStatuses)) {
     $Global:VcsPromptStatuses = @()
 }
 
-function Global:Write-VcsStatus {
-    $Global:VcsPromptStatuses | foreach {
-        $vcsPromptErrors = $null
-        try {
-            Invoke-Command -ScriptBlock $_ -ErrorVariable vcsPromptErrors 2>$null
-        }
-        catch {
-            $vcsPromptErrors = $_
-        }
-        if ($vcsPromptErrors.Length -gt 0) {
-             # Log the errors but dont affect the users prompt, splat error objects into Write-Error
-            $vcsPromptErrors | % { Write-Error -ErrorAction SilentlyContinue @_ }
-            $s = $Global:SvnPromptSettings
-            if ($s) {
-                Write-Prompt $s.BeforeText -BackgroundColor $s.BeforeBackgroundColor -ForegroundColor $s.BeforeForegroundColor
-                Write-Prompt "Error" -BackgroundColor $s.ErrorBackgroundColor -ForegroundColor $s.ErrorForegroundColor
-                Write-Prompt $s.AfterText -BackgroundColor $s.AfterBackgroundColor -ForegroundColor $s.AfterForegroundColor
-            }
-        }
-    }
-}
-
 # Scriptblock that will execute for write-vcsstatus
 $PoshSvnVcsPrompt = {
 	$Global:SvnStatus = Get-SvnStatus
 	Write-SvnStatus $SvnStatus
 }
+
 $Global:VcsPromptStatuses += $PoshSvnVcsPrompt
-$ExecutionContext.SessionState.Module.OnRemove = { $Global:VcsPromptStatuses = $Global:VcsPromptStatuses | ? { $_ -ne $PoshSvnVcsPrompt } }
+$ExecutionContext.SessionState.Module.OnRemove = { $Global:VcsPromptStatuses = $Global:VcsPromptStatuses | ? { $_ -ne $PoshSvnVcsPrompt} }
