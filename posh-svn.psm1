@@ -9,7 +9,7 @@ if (Get-Command svn -errorAction SilentlyContinue)
   Export-ModuleMember -Function @(
     'Write-SvnStatus',
     'Get-SvnStatus',
-    'SvnTabExpansion',
+    'TabExpansion',
     'tsvn'
   )
 }
